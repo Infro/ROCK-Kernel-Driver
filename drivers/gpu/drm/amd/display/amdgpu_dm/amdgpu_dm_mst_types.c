@@ -40,6 +40,11 @@
 #ifdef TRACE_DPCD
 #define SIDE_BAND_MSG(address) (address >= DP_SIDEBAND_MSG_DOWN_REQ_BASE && address < DP_SINK_COUNT_ESI)
 
+#if DRM_VERSION_CODE < DRM_VERSION(4,19,0)
+#define (drm_connector_update_edid_property) (drm_mode_connector_update_edid_property)
+#define (drm_connector_set_path_property) (drm_mode_connector_set_path_property)
+#endif
+
 static inline char *side_band_msg_type_to_str(uint32_t address)
 {
 	static char str[10] = {0};
@@ -226,7 +231,7 @@ static int dm_dp_mst_get_modes(struct drm_connector *connector)
 		edid = drm_dp_mst_get_edid(connector, &aconnector->mst_port->mst_mgr, aconnector->port);
 
 		if (!edid) {
-			drm_mode_connector_update_edid_property(
+			drm_connector_update_edid_property(
 				&aconnector->base,
 				NULL);
 			return ret;
@@ -254,7 +259,7 @@ static int dm_dp_mst_get_modes(struct drm_connector *connector)
 					connector, aconnector->edid);
 	}
 
-	drm_mode_connector_update_edid_property(
+	drm_connector_update_edid_property(
 					&aconnector->base, aconnector->edid);
 
 	ret = drm_add_edid_modes(connector, aconnector->edid);
@@ -332,7 +337,7 @@ dm_dp_add_mst_connector(struct drm_dp_mst_topology_mgr *mgr,
 			DRM_INFO("DM_MST: reusing connector: %p [id: %d] [master: %p]\n",
 						aconnector, connector->base.id, aconnector->mst_port);
 			aconnector->port = port;
-			drm_mode_connector_set_path_property(connector, pathprop);
+			drm_connector_set_path_property(connector, pathprop);
 			drm_modeset_unlock(&dev->mode_config.connection_mutex);
 			aconnector->mst_connected = true;
 			return &aconnector->base;
@@ -380,7 +385,7 @@ dm_dp_add_mst_connector(struct drm_dp_mst_topology_mgr *mgr,
 		dev->mode_config.tile_property,
 		0);
 
-	drm_mode_connector_set_path_property(connector, pathprop);
+	drm_connector_set_path_property(connector, pathprop);
 
 	/*
 	 * Initialize connector state before adding the connectror to drm and

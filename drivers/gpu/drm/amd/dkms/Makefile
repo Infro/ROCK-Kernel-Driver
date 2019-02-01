@@ -25,6 +25,9 @@ DRM_PATCH=$(shell sed -n 's/^PATCHLEVEL = \(.*\)/\1/p' $(kdir)/Makefile)
 else ifeq ("rhel",$(OS_NAME))
 DRM_VER=$(shell sed -n 's/^RHEL_DRM_VERSION = \(.*\)/\1/p' $(kdir)/Makefile)
 DRM_PATCH=$(shell sed -n 's/^RHEL_DRM_PATCHLEVEL = \(.*\)/\1/p' $(kdir)/Makefile)
+else
+DRM_VER=$(shell sed -n 's/^Linux version \([0-9]*\)\.[0-9]*.*/\1/p' /proc/version)
+DRM_PATCH=$(shell sed -n 's/^Linux version [0-9]*\.\([0-9]*\).*/\1/p' /proc/version)
 endif
 
 subdir-ccflags-y += \
